@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <style>
+        /* Basic styling for cards */
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            margin-top: 0;
+        }
+        .card p {
+            margin: 4px 0;
+        }
+        .product-card {
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 8px 0;
+        }
+        .no-products {
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div id="cards-container"></div>
+    <script >
+
+        const serviceTypes = ["Dry Cleaning","Laundary Service","Wet Cleaning","Wedding Gowns","Express Service","Hotel & Laundry Service"];
+        const productTypes = ["Shirt","Jeans","Shorts","Shoes","Trouser","Kurti","Kurti set"];
+
+
+        // URL of the API endpoint (replace with your actual endpoint)
+const apiUrl = 'http://localhost:8080/orders';
+
+// Function to create a card element for an order
+function createOrderCard(order) {
+    // Create card container
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    // Create and append order details
+    const orderDetails = `
+        <h2>Order ID: ${order.orderID}</h2>
+        <p><strong>Name:</strong> ${order.name || 'N/A'}</p>
+        <p><strong>Email:</strong> ${order.email || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${order.phone || 'N/A'}</p>
+        <p><strong>Pincode:</strong> ${order.pincode || 'N/A'}</p>
+        <p><strong>Time:</strong> ${order.time || 'N/A'}</p>
+        <p><strong>Address:</strong> ${order.address || 'N/A'}</p>
+    `;
+    card.innerHTML = orderDetails;
+
+    // Create and append product types if they exist
+    if (order.pt && order.pt.length > 0) {
+        const productTypesContainer = document.createElement('div');
+        productTypesContainer.innerHTML = '<h3>Product Types:</h3>';
+
+        order.pt.forEach((product, index) => {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.innerHTML = `
+                <h4>Product ${index + 1}</h4>
+                <p><strong>ServiceType:</strong> ${serviceTypes[product.st-1]}</p>
+                <p><strong>ProductType:</strong> ${productTypes[Math.floor(product.pt%10) - 1]}</p>
+                <p><strong>Units:</strong> ${product.units}</p>
+            `;
+            productTypesContainer.appendChild(productCard);
+        });
+
+        card.appendChild(productTypesContainer);
+    } else {
+        const noProductsMessage = document.createElement('p');
+        noProductsMessage.textContent = 'No products available for this order.';
+        card.appendChild(noProductsMessage);
+    }
+
+    return card;
+}
+
+// Function to fetch data and display cards
+async function fetchData() {
+    try {
+        const response = await fetch("http://localhost:8080/form");
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const orders = await response.json();
+
+        // Get container for cards
+        const container = document.getElementById('cards-container');
+
+        // Create and append cards for each order
+        orders.forEach(order => {
+            const card = createOrderCard(order);
+            container.appendChild(card);
+        });
+    } catch (error) {
+        console.error('There was a problem with the fetch operation:', error);
+    }
+}
+
+// Fetch and display data when page loads
+window.onload = fetchData;
+
+    </script>
+</body>
+</html>
