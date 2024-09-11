@@ -90,7 +90,7 @@ function createOrderCard(order) {
 // Function to fetch data and display cards
 async function fetchData() {
     try {
-        const response = await fetch("http://localhost:8080/form");
+        const response = await fetch("https://primelaundry.onrender.com/form");
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
